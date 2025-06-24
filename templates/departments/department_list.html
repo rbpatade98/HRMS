@@ -1,0 +1,67 @@
+{% extends 'departments/base.html' %}
+{% block title %}Departments{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="card shadow-sm rounded-4 p-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="fw-bold mb-0">Departments</h2>
+
+             <!-- 🔍 Simple Search Form -->
+            <form method="GET" class="d-flex" style="max-width: 300px;">
+                <input type="text" name="q" class="form-control me-2" placeholder="Search department..." value="{{ query|default:'' }}">
+                <button type="submit" class="btn btn-primary">Search</button>
+            </form>
+
+                
+            <a href="{% url 'department_add' %}" class="btn btn-primary">
+                ➕ Add Department
+            </a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover table-striped align-middle">
+                <thead class="table-primary">
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>Status</th>
+                        <th>Created</th>
+                        <th>Updated</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for dept in departments %}
+                    <tr>
+                        <td>{{ dept.dept_id }}</td>
+                        <td>{{ dept.dept_name }}</td>
+                        <td>{{ dept.description }}</td>
+                        <td>
+                            {% if dept.status %}
+                                <span class="badge bg-success">Active</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ dept.created_at|date:"Y-m-d H:i" }}</td>
+                        <td>{{ dept.updated_at|date:"Y-m-d H:i" }}</td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a href="{% url 'department_edit' dept.dept_id %}" class="btn btn-warning btn-sm">✏️ Edit</a>
+                                <a href="{% url 'department_delete' dept.dept_id %}" class="btn btn-danger btn-sm ms-1">🗑️ Delete</a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center text-muted">No departments found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

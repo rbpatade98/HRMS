@@ -1,0 +1,96 @@
+{% extends 'departments/base.html' %}
+{% block title %}HRMS Home{% endblock %}
+
+{% block content %}
+<style>
+    body {
+        background: linear-gradient(to right, #e3f2fd, #ffffff);
+    }
+
+    .home-hero {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 80vh;
+        text-align: center;
+    }
+
+    .home-hero h1 {
+        font-size: 3rem;
+        font-weight: 700;
+        color: #0d6efd;
+    }
+
+    .home-hero p {
+        font-size: 1.2rem;
+        color: #6c757d;
+        margin-bottom: 2rem;
+    }
+
+    .home-hero .btn-primary {
+        padding: 0.75rem 2rem;
+        font-size: 1rem;
+        border-radius: 0.5rem;
+    }
+
+    .features-section {
+        padding: 60px 20px;
+        text-align: center;
+    }
+
+    .features-section h2 {
+        font-size: 2rem;
+        margin-bottom: 30px;
+        color: #0d6efd;
+    }
+
+    .feature-box {
+        padding: 20px;
+        border-radius: 10px;
+        background-color: #ffffff;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+        height: 100%;
+    }
+
+    .feature-box h5 {
+        color: #343a40;
+    }
+
+    .feature-box p {
+        color: #6c757d;
+    }
+</style>
+
+<div class="container home-hero">
+    <h1>Welcome to HRMS</h1>
+    <p>Manage your departments efficiently.</p>
+    <a href="{% url 'login' %}" class="btn btn-primary">Admin Login</a>
+</div>
+
+<!-- ✅ Additional Content -->
+<!-- <div class="container features-section">
+    <h2>Key Features</h2>
+    <div class="row justify-content-center">
+        <div class="col-md-4">
+            <div class="feature-box">
+                <h5>👥 Employee Management</h5>
+                <p>Add, update, and organize employees under different departments.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="feature-box">
+                <h5>📁 Department Control</h5>
+                <p>Create and manage department structures with real-time updates.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="feature-box">
+                <h5>📊 Performance Review</h5>
+                <p>Track employee progress and generate performance reports.</p>
+            </div>
+        </div>
+    </div>
+</div> -->
+{% endblock %}
