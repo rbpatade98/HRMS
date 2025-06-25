@@ -112,3 +112,60 @@ def department_list(request):
     else:
         departments = Department.objects.all()
     return render(request, 'departments/department_list.html', {'departments': departments, 'query': query})
+
+
+#Roles view
+from .models import Role
+from .forms import RoleForm
+
+@login_required
+@user_passes_test(admin_check)
+def role_list(request):
+    roles = Role.objects.all()
+    return render(request, 'departments/role_list.html', {'roles': roles})
+
+@login_required
+@user_passes_test(admin_check)
+def role_create(request):
+    if request.method == 'POST':
+        form = RoleForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Role added successfully.")
+            return redirect('role_list')
+    else:
+        form = RoleForm()
+    return render(request, 'departments/role_form.html', {'form': form})
+
+@login_required
+@user_passes_test(admin_check)
+def role_update(request, pk):
+    role = get_object_or_404(Role, pk=pk)
+    if request.method == 'POST':
+        form = RoleForm(request.POST, instance=role)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Role updated successfully.")
+            return redirect('role_list')
+    else:
+        form = RoleForm(instance=role)
+    return render(request, 'departments/role_form.html', {'form': form})
+
+@login_required
+@user_passes_test(admin_check)
+def role_delete(request, pk):
+    role = get_object_or_404(Role, pk=pk)
+    if request.method == 'POST':
+        role.delete()
+        messages.success(request, "Role deleted successfully.")
+        return redirect('role_list')
+    return render(request, 'departments/role_confirm_delete.html', {'role': role})
+
+
+def role_list(request):
+    query = request.GET.get('q')
+    if query:
+        roles = Role.objects.filter(role_name__icontains=query)
+    else:
+        roles = Role.objects.all()
+    return render(request, 'departments/role_list.html', {'roles': roles, 'query': query})

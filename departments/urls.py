@@ -12,4 +12,11 @@ urlpatterns = [
     path('departments/add/', views.department_create, name='department_add'),
     path('departments/edit/<int:pk>/', views.department_update, name='department_edit'),
     path('departments/delete/<int:pk>/', views.department_delete, name='department_delete'),
+
+    # Roles
+    path('roles/', views.role_list, name='role_list'),
+    path('roles/add/', views.role_create, name='role_add'),
+    path('roles/edit/<int:pk>/', views.role_update, name='role_edit'),
+    path('roles/delete/<int:pk>/', views.role_delete, name='role_delete'),
+
 ]
