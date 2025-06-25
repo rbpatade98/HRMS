@@ -1,0 +1,70 @@
+{% extends 'departments/base.html' %}
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<style>
+    body {
+        background: linear-gradient(to right, #f0f4ff, #d9e4f5);
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    .dashboard-card {
+        background: #ffffffd9;
+        border-radius: 1.5rem;
+        padding: 2rem;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        max-width: 700px;
+        width: 100%;
+    }
+
+    .dashboard-title {
+        font-weight: 700;
+        color: #2d2d2d;
+    }
+
+    .dashboard-subtitle {
+        color: #6c757d;
+    }
+
+    .dashboard-buttons a {
+        padding: 0.75rem 2rem;
+        border-radius: 50px;
+        font-weight: 500;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        transition: transform 0.2s ease, box-shadow 0.3s ease;
+    }
+
+    .dashboard-buttons a:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+    }
+
+    @media (max-width: 576px) {
+        .dashboard-buttons {
+            flex-direction: column !important;
+        }
+    }
+</style>
+
+<div class="container d-flex flex-column align-items-center justify-content-center min-vh-100">
+    <div class="dashboard-card">
+        <div class="text-center mb-4">
+            <h2 class="dashboard-title">Welcome, {{ request.user.username }}</h2>
+            <p class="dashboard-subtitle">Manage your HRMS system from here</p>
+        </div>
+        <hr>
+
+        <div class="d-flex justify-content-center flex-wrap gap-3 mt-4 dashboard-buttons">
+            <a href="{% url 'department_list' %}" class="btn btn-outline-primary">
+                Manage Departments
+            </a>
+            <a href="{% url 'role_list' %}" class="btn btn-outline-secondary">
+                 Manage Roles
+            </a>
+            <a href="{% url 'employee_list' %}" class="btn btn-outline-success">
+                Manage Employees
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
