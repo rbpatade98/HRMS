@@ -1,0 +1,56 @@
+{% extends 'departments/base.html' %}
+{% block title %}Task Details{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="card shadow-sm rounded-4 p-4">
+        <h2 class="fw-bold mb-3 text-primary">Task Details</h2>
+        <hr>
+        <div class="mb-3">
+            <strong>Title:</strong>
+            <p>{{ task.task_title }}</p>
+        </div>
+        <div class="mb-3">
+            <strong>Description:</strong>
+            <p>{{ task.task_description }}</p>
+        </div>
+        <div class="mb-3">
+            <strong>Priority:</strong>
+            <span class="badge 
+                {% if task.task_priority == 'High' %}bg-danger
+                {% elif task.task_priority == 'Medium' %}bg-warning text-dark
+                {% else %}bg-success
+                {% endif %}">
+                {{ task.task_priority }}
+            </span>
+        </div>
+        <div class="mb-3">
+            <strong>Type:</strong> {{ task.task_type }}
+        </div>
+        <div class="mb-3">
+            <strong>Start Date:</strong> {{ task.start_date }}
+        </div>
+        <div class="mb-3">
+            <strong>End Date:</strong> {{ task.end_date }}
+        </div>
+        <div class="mb-3">
+            <strong>Assigned To:</strong>
+            <ul>
+                {% for assignment in task_assignments %}
+                    <li>{{ assignment.employee.get_full_name }} - 
+                        <span class="badge 
+                            {% if assignment.status == 'Completed' %}bg-success
+                            {% elif assignment.status == 'In Progress' %}bg-warning text-dark
+                            {% else %}bg-secondary
+                            {% endif %}">
+                            {{ assignment.status }}
+                        </span>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <a href="{% url 'task_list' %}" class="btn btn-outline-secondary">Back to List</a>
+    </div>
+</div>
+{% endblock %}

@@ -7,16 +7,23 @@ from django.views.generic import View
 from django.db import models
 from .models import Department
 from .forms import DepartmentForm
-
-
 import random
 from django.core.mail import send_mail
 from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import make_password
 from .forms import ForgotPasswordForm, OTPForm, ResetPasswordForm
 import smtplib
-
 from django.core.mail import EmailMessage, get_connection
+
+
+from .models import Task, TaskAssignment, CustomUser
+from .forms import TaskForm
+from django.db.models import Q, Count
+from django.utils import timezone
+
+
+
+
 
 # ✅ Home Page (Public)
 def home(request):
@@ -333,5 +340,179 @@ def reset_password_view(request):
 
     return render(request, 'departments/reset_password.html', {'form': form})
 
+#task
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.utils import timezone
+from .models import Task, TaskAssignment, CustomUser
+from .forms import TaskForm, TaskAssignmentForm
+from django.core.paginator import Paginator
 
 
+@login_required
+def task_create(request):
+    if request.method == 'POST':
+        form = TaskForm(request.POST)
+        assign_form = TaskAssignmentForm(request.POST, user=request.user)
+
+        if form.is_valid() and assign_form.is_valid():
+            task = form.save(commit=False)
+            task.created_at = timezone.now()
+            task.updated_at = timezone.now()
+            task.save()
+
+            assignment = assign_form.save(commit=False)
+            assignment.task = task
+            assignment.assigned_by = request.user
+            assignment.assigned_date = timezone.now()
+            assignment.save()
+
+            messages.success(request, 'Task created and assigned successfully.')
+            return redirect('task_list')
+    else:
+        form = TaskForm()
+        assign_form = TaskAssignmentForm(user=request.user)
+
+    return render(request, 'departments/task_form.html', {
+        'form': form,
+        'assign_form': assign_form
+    })
+
+@login_required
+def task_list(request):
+    tasks = TaskAssignment.objects.select_related('task', 'employee')
+
+    # Filtering parameters
+    employee_id = request.GET.get('employee')
+    status = request.GET.get('status')
+    from_date = request.GET.get('start_date')
+    to_date = request.GET.get('end_date')
+
+    # Filter only tasks assigned by the logged-in user (Team Leader/Admin)
+    tasks = tasks.filter(assigned_by=request.user)
+
+    # Apply filters safely
+    if employee_id and employee_id != 'all':
+        tasks = tasks.filter(employee_id=employee_id)
+
+    if status and status != 'all':
+        tasks = tasks.filter(status=status)
+
+    if from_date:
+        tasks = tasks.filter(task__start_date__gte=from_date)
+
+    if to_date:
+        tasks = tasks.filter(task__end_date__lte=to_date)
+
+    # 📊 Statistics
+    total = tasks.count()
+    completed = tasks.filter(status='Completed').count()
+    pending = tasks.filter(status='Pending').count()
+    in_progress = tasks.filter(status='In Progress').count()
+
+    stats = {
+        'total': total,
+        'completed': completed,
+        'pending': pending,
+        'in_progress': in_progress,
+    }
+
+    # Get subordinates of current user
+    employees = CustomUser.objects.filter(reporting_manager=request.user)
+
+    return render(request, 'departments/task_list.html', {
+        'tasks': tasks,
+        'employees': employees,
+        'stats': stats,
+        'request': request  # for template filter dropdowns
+    })
+
+
+@login_required
+def task_detail(request, assignment_id):
+    assignment = get_object_or_404(TaskAssignment, pk=assignment_id)
+    task_assignments = TaskAssignment.objects.filter(task=assignment.task)
+    return render(request, 'departments/task_detail.html', {
+        'task': assignment.task,
+        'task_assignments': task_assignments
+    })
+
+@login_required
+def task_update(request, pk):
+    task = get_object_or_404(Task, pk=pk)
+    if request.method == 'POST':
+        form = TaskForm(request.POST, instance=task)
+        assign_form = TaskAssignmentForm(request.POST, user=request.user)
+        if form.is_valid() and assign_form.is_valid():
+            form.save()
+            TaskAssignment.objects.filter(task=task).delete()
+            TaskAssignment.objects.create(
+                task=task,
+                employee=assign_form.cleaned_data['employee'],
+                assigned_by=request.user,
+                assigned_date=timezone.now(),
+                status='Pending'
+            )
+            return redirect('task_list')
+    else:
+        form = TaskForm(instance=task)
+        assign_form = TaskAssignmentForm(user=request.user)
+    return render(request, 'departments/task_form.html', {'form': form, 'assign_form': assign_form, 'edit_mode': True})
+
+@login_required
+def task_delete(request, pk):
+    task = get_object_or_404(Task, pk=pk)
+    if request.method == 'POST':
+        task.delete()
+        return redirect('task_list')
+    return render(request, 'departments/task_confirm_delete.html', {'task': task})
+
+@login_required
+def mark_task_completed(request, pk):
+    assignment = get_object_or_404(TaskAssignment, pk=pk)
+    assignment.status = 'Completed'
+    assignment.completed_at = timezone.now()
+    assignment.save()
+    messages.success(request, "Task marked as completed.")
+    return redirect('task_list')
+
+@login_required
+def task_edit(request, pk):
+    assignment = get_object_or_404(TaskAssignment, pk=pk)
+    task = assignment.task
+
+    if request.method == 'POST':
+        form = TaskForm(request.POST, instance=task)
+        assign_form = TaskAssignmentForm(request.POST, instance=assignment, user=request.user)
+
+        if form.is_valid() and assign_form.is_valid():
+            task = form.save(commit=False)
+            task.updated_at = timezone.now()
+            task.save()
+
+            assignment = assign_form.save(commit=False)
+            assignment.task = task
+            assignment.assigned_by = request.user
+            assignment.save()
+
+            messages.success(request, 'Task updated successfully.')
+            return redirect('task_list')
+    else:
+        form = TaskForm(instance=task)
+        assign_form = TaskAssignmentForm(instance=assignment, user=request.user)
+
+    return render(request, 'departments/task_form.html', {
+        'form': form,
+        'assign_form': assign_form
+    })
+
+@login_required
+def task_detail(request, pk):
+    assignment = get_object_or_404(TaskAssignment, pk=pk)
+    task = assignment.task
+    task_assignments = TaskAssignment.objects.filter(task=task)
+
+    return render(request, 'departments/task_detail.html', {
+        'task': task,
+        'task_assignments': task_assignments
+    })

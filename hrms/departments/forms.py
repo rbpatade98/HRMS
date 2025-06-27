@@ -3,6 +3,12 @@ from .models import Department
 from .models import Role
 from django.contrib.auth.forms import UserCreationForm
 from .models import CustomUser
+from .models import Task, TaskAssignment
+
+
+
+
+
 
 class DepartmentForm(forms.ModelForm):
     class Meta:
@@ -71,3 +77,54 @@ class OTPForm(forms.Form):
 class ResetPasswordForm(forms.Form):
     new_password = forms.CharField(widget=forms.PasswordInput, label='New Password')
     confirm_password = forms.CharField(widget=forms.PasswordInput, label='Confirm Password')
+
+
+
+
+
+
+class TaskForm(forms.ModelForm):
+    class Meta:
+        model = Task
+        fields = ['task_title', 'task_description', 'task_priority', 'task_type', 'start_date', 'end_date']
+        widgets = {
+            'task_title': forms.TextInput(attrs={'class': 'form-control'}),
+            'task_description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'task_priority': forms.Select(attrs={'class': 'form-select'}),
+            'task_type': forms.Select(attrs={'class': 'form-select'}),
+            'start_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'end_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+        }
+
+
+
+STATUS_CHOICES = [
+    ('Pending', 'Pending'),
+    ('In Progress', 'In Progress'),
+    ('Completed', 'Completed'),
+]
+
+class TaskAssignmentForm(forms.ModelForm):
+    status = forms.ChoiceField(
+        choices=STATUS_CHOICES,
+        widget=forms.RadioSelect,  # 👈 this shows radio buttons
+        initial='Pending'  # default value
+    )
+
+    class Meta:
+        model = TaskAssignment
+        fields = ['employee', 'status']
+        widgets = {
+            'employee': forms.Select(attrs={'class': 'form-select'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        if user:
+            self.fields['employee'].queryset = CustomUser.objects.filter(reporting_manager=user)
+
+
+
+
+

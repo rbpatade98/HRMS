@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.conf import settings
 
 class Department(models.Model):
     dept_id = models.AutoField(primary_key=True)
@@ -38,3 +39,63 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         return f"{self.first_name} {self.last_name} ({self.username})"
+
+
+
+
+# class Task(models.Model):
+#     task_id = models.AutoField(primary_key=True)
+#     task_title = models.CharField(max_length=100)
+#     task_description = models.TextField(max_length=300)
+#     task_priority = models.CharField(max_length=50, choices=[('High', 'High'), ('Medium', 'Medium'), ('Low', 'Low')])
+#     start_date = models.DateField()
+#     end_date = models.DateField()
+#     task_type = models.CharField(max_length=50, choices=[('Individual', 'Individual'), ('Team', 'Team')])
+#     created_at = models.DateTimeField(auto_now_add=True)
+#     updated_at = models.DateTimeField(auto_now=True)
+
+# class TaskAssignment(models.Model):
+#     assignment_id = models.AutoField(primary_key=True)
+#     task = models.ForeignKey(Task, on_delete=models.CASCADE)
+#     employee = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='assigned_tasks')
+#     assigned_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='created_tasks')
+#     assigned_date = models.DateTimeField(auto_now_add=True)
+#     status = models.CharField(max_length=50, choices=[('Pending', 'Pending'), ('In progress', 'In progress'), ('Completed', 'Completed')], default='Pending')
+#     completed_at = models.DateTimeField(null=True, blank=True)
+
+class Task(models.Model):
+    TASK_PRIORITY_CHOICES = [
+        ('High', 'High'),
+        ('Medium', 'Medium'),
+        ('Low', 'Low'),
+    ]
+    TASK_TYPE_CHOICES = [
+        ('Individual', 'Individual'),
+        ('Team', 'Team'),
+    ]
+
+    task_id = models.AutoField(primary_key=True)
+    task_title = models.CharField(max_length=255)
+    task_description = models.TextField()
+    task_priority = models.CharField(max_length=20, choices=TASK_PRIORITY_CHOICES)
+    task_type = models.CharField(max_length=20, choices=TASK_TYPE_CHOICES)
+    start_date = models.DateField()
+    end_date = models.DateField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+class TaskAssignment(models.Model):
+    STATUS_CHOICES = [
+        ('Pending', 'Pending'),
+        ('In Progress', 'In Progress'),
+        ('Completed', 'Completed'),
+    ]
+
+    assignment_id = models.AutoField(primary_key=True)
+    task = models.ForeignKey(Task, on_delete=models.CASCADE)
+    employee = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    assigned_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='assigned_tasks')
+    assigned_date = models.DateTimeField(auto_now_add=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')

@@ -1,0 +1,118 @@
+{% extends 'departments/base.html' %}
+{% block title %}Tasks{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="card shadow-sm rounded-4 p-4">
+        <h2 class="fw-bold mb-4">Task Dashboard</h2>
+
+        <!-- 🔍 Filters -->
+        <form method="GET" class="row g-3 mb-4">
+            <div class="col-md-3">
+                <label class="form-label">Employee</label>
+                <select name="employee" class="form-select">
+                    <option value="all" {% if request.GET.employee == "all" or not request.GET.employee %}selected{% endif %}>All</option>
+                    {% for emp in employees %}
+                        <option value="{{ emp.id }}" {% if request.GET.employee == emp.id|stringformat:"s" %}selected{% endif %}>
+                            {{ emp.get_full_name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Status</label>
+                <select name="status" class="form-select">
+                    <option value="all" {% if request.GET.status == "all" or not request.GET.status %}selected{% endif %}>All</option>
+                    <option value="Pending" {% if request.GET.status == "Pending" %}selected{% endif %}>Pending</option>
+                    <option value="In Progress" {% if request.GET.status == "In Progress" %}selected{% endif %}>In Progress</option>
+                    <option value="Completed" {% if request.GET.status == "Completed" %}selected{% endif %}>Completed</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">From</label>
+                <input type="date" name="start_date" value="{{ request.GET.start_date }}" class="form-control">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">To</label>
+                <input type="date" name="end_date" value="{{ request.GET.end_date }}" class="form-control">
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary me-2">Filter</button>
+                <a href="{% url 'task_list' %}" class="btn btn-secondary">Clear</a>
+            </div>
+        </form>
+
+        <!-- 📊 Statistics -->
+        <div class="row text-center mb-4">
+            <div class="col-md-4">
+                <div class="bg-success text-white p-3 rounded shadow-sm">Completed: <strong>{{ stats.completed }}</strong></div>
+            </div>
+            <div class="col-md-4">
+                <div class="bg-warning text-dark p-3 rounded shadow-sm">In Progress: <strong>{{ stats.in_progress }}</strong></div>
+            </div>
+            <div class="col-md-4">
+                <div class="bg-danger text-white p-3 rounded shadow-sm">Pending: <strong>{{ stats.pending }}</strong></div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between mb-3">
+            <h5 class="mb-0">Tasks</h5>
+            <a href="{% url 'task_create' %}" class="btn btn-outline-primary">➕ Create Task</a>
+        </div>
+
+        <!-- 📋 Task Table -->
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Id</th>
+                        <th>Title</th>
+                        <th>Assigned To</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th>Start</th>
+                        <th>End</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for task in tasks %}
+                    <tr>
+                        <td>{{ task.task.task_id }}</td>
+                        <td>{{ task.task.task_title }}</td>
+                        <td>{{ task.employee.get_full_name }}</td>
+                        <td>{{ task.task.task_priority }}</td>
+                        <td>
+                            {% if task.status == 'Completed' %}
+                                <span class="badge bg-success">{{ task.status }}</span>
+                            {% elif task.status == 'In Progress' %}
+                                <span class="badge bg-warning text-dark">{{ task.status }}</span>
+                            {% else %}
+                                <span class="badge bg-danger">{{ task.status }}</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ task.task.start_date }}</td>
+                        <td>{{ task.task.end_date }}</td>
+                        
+                        
+
+                        <td>
+                            <div class="btn-group btn-group-sm" role="group">
+                                <a href="{% url 'task_detail' task.pk %}" class="btn btn-info">👁 View</a>
+                                <a href="{% url 'task_edit' task.pk %}" class="btn btn-warning">✏ Edit</a>
+
+                                <a href="{% url 'task_delete' task.pk %}" class="btn btn-danger">🗑 Delete</a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center text-muted">No tasks found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

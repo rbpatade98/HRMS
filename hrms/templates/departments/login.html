@@ -50,10 +50,20 @@
         background-color: #3b7dd8;
     }
 
-    .form-text {
-        text-align: center;
-        margin-top: 1rem;
-        color: #777;
+    .forgot-password {
+        text-align: right;
+        margin-top: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .forgot-password a {
+        color: #4a90e2;
+        text-decoration: none;
+        font-size: 0.9rem;
+    }
+
+    .forgot-password a:hover {
+        text-decoration: underline;
     }
 
     .alert {
@@ -83,12 +93,11 @@
                 <input type="password" name="password" id="password" class="form-control" required>
             </div>
 
-            <button type="submit" class="btn btn-primary">Login</button>
-
-            <div class="form-text">
+            <div class="forgot-password">
                 <a href="{% url 'forgot_password' %}">Forgot Password?</a>
             </div>
 
+            <button type="submit" class="btn btn-primary">Login</button>
         </form>
     </div>
 </div>
