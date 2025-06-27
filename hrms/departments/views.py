@@ -9,6 +9,15 @@ from .models import Department
 from .forms import DepartmentForm
 
 
+import random
+from django.core.mail import send_mail
+from django.contrib.auth import get_user_model
+from django.contrib.auth.hashers import make_password
+from .forms import ForgotPasswordForm, OTPForm, ResetPasswordForm
+import smtplib
+
+from django.core.mail import EmailMessage, get_connection
+
 # ✅ Home Page (Public)
 def home(request):
     return render(request, 'departments/home.html')
@@ -233,3 +242,96 @@ def employee_list(request):
     else:
         employees = CustomUser.objects.all()
     return render(request, 'departments/employee_list.html', {'employees': employees, 'query': query})
+
+
+
+
+
+User = get_user_model()
+
+def generate_otp():
+    return str(random.randint(100000, 999999))
+
+def forgot_password_view(request):
+    if request.method == 'POST':
+        form = ForgotPasswordForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            try:
+                user = User.objects.get(email=email)
+                otp = generate_otp()
+                request.session['otp'] = otp
+                request.session['reset_email'] = email
+
+                send_mail(
+                    'Your OTP for Password Reset',
+                    f'Your OTP is: {otp}',
+                    'your-email@gmail.com',
+                    [email],
+                    fail_silently=False
+                )
+
+                messages.success(request, 'OTP sent to your email.')
+                return redirect('verify_otp')
+
+            except User.DoesNotExist:
+                messages.error(request, 'Email not found!')
+    else:
+        form = ForgotPasswordForm()
+    return render(request, 'departments/forgot_password.html', {'form': form})
+
+
+def verify_otp_view(request):
+    if request.method == 'POST':
+        form = OTPForm(request.POST)
+        if form.is_valid():
+            entered_otp = form.cleaned_data['otp']
+            session_otp = request.session.get('otp')
+
+            if entered_otp == session_otp:
+                messages.success(request, 'OTP verified.')
+                return redirect('reset_password')
+            else:
+                messages.error(request, 'Invalid OTP.')
+    else:
+        form = OTPForm()
+    return render(request, 'departments/verify_otp.html', {'form': form})
+
+from django.contrib.auth import get_user_model
+User = get_user_model()
+
+def reset_password_view(request):
+    email = request.session.get('reset_email')
+    if not email:
+        messages.error(request, 'Session expired. Please request OTP again.')
+        return redirect('forgot_password')
+
+    if request.method == 'POST':
+        form = ResetPasswordForm(request.POST)
+        if form.is_valid():
+            password = form.cleaned_data['new_password']
+            confirm = form.cleaned_data['confirm_password']
+
+            if password != confirm:
+                messages.error(request, 'Passwords do not match!')
+                return redirect('reset_password')
+
+            try:
+                user = User.objects.get(email=email)
+                user.set_password(password)  # ✅ This securely hashes the password
+                user.save()
+
+                messages.success(request, 'Password reset successful. Please login.')
+                request.session.flush()
+                return redirect('login')
+
+            except User.DoesNotExist:
+                messages.error(request, 'User does not exist.')
+                return redirect('forgot_password')
+    else:
+        form = ResetPasswordForm()
+
+    return render(request, 'departments/reset_password.html', {'form': form})
+
+
+

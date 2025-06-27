@@ -11,8 +11,11 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+from decouple import config
 import os
-
+import ssl
+import certifi
+ssl._create_default_https_context = ssl.create_default_context(cafile=certifi.where())
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -25,7 +28,8 @@ SECRET_KEY = 'django-insecure-rd0j@d$*%x!zesgz(4uw(yqy-uf9hqf4&*lbjw&yqra+y4k6w0
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-ALLOWED_HOSTS = ['rampatade.pythonanywhere.com']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+
 
 
 
@@ -39,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'departments',
+    'widget_tweaks',
 ]
 
 MIDDLEWARE = [
@@ -127,3 +132,12 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_REDIRECT_URL = '/departments/dashboard/'
 LOGOUT_REDIRECT_URL = '/login/'
 AUTH_USER_MODEL = 'departments.CustomUser'
+
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'rbpatade98@gmail.com'
+EMAIL_HOST_PASSWORD = 'fcok pqnq esdz ehuk'

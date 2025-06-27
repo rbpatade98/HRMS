@@ -1,5 +1,5 @@
 {% extends 'departments/base.html' %}
-{% block title %}Admin Login{% endblock %}
+{% block title %}Verify OTP{% endblock %}
 
 {% block content %}
 <style>
@@ -50,12 +50,6 @@
         background-color: #3b7dd8;
     }
 
-    .form-text {
-        text-align: center;
-        margin-top: 1rem;
-        color: #777;
-    }
-
     .alert {
         margin-top: 1rem;
     }
@@ -63,7 +57,7 @@
 
 <div class="login-wrapper">
     <div class="login-card">
-        <h2>Admin Login</h2>
+        <h2>Verify OTP</h2>
 
         {% if messages %}
             {% for message in messages %}
@@ -74,21 +68,11 @@
         <form method="POST" novalidate>
             {% csrf_token %}
             <div class="mb-3">
-                <label for="username" class="form-label">Username</label>
-                <input type="text" name="username" id="username" class="form-control" required autofocus>
+                <label for="otp" class="form-label">Enter OTP</label>
+                <input type="text" name="otp" id="otp" class="form-control" required>
             </div>
 
-            <div class="mb-3">
-                <label for="password" class="form-label">Password</label>
-                <input type="password" name="password" id="password" class="form-control" required>
-            </div>
-
-            <button type="submit" class="btn btn-primary">Login</button>
-
-            <div class="form-text">
-                <a href="{% url 'forgot_password' %}">Forgot Password?</a>
-            </div>
-
+            <button type="submit" class="btn btn-primary">Verify</button>
         </form>
     </div>
 </div>

@@ -31,7 +31,7 @@ class EmployeeForm(forms.ModelForm):
         model = CustomUser
         fields = [
             'username', 'first_name', 'last_name', 'email', 'mobile',
-            'dept', 'role', 'reporting_manager', 'date_of_joining'
+            'dept', 'role', 'reporting_manager', 'date_of_joining','password'
         ]
         widgets = {
             'username': forms.TextInput(attrs={'class': 'form-control'}),
@@ -44,3 +44,30 @@ class EmployeeForm(forms.ModelForm):
             'reporting_manager': forms.Select(attrs={'class': 'form-control'}),
             'date_of_joining': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
         }
+
+        def save(self, commit=True):
+                user = super().save(commit=False)
+                password = self.cleaned_data.get('password')
+
+                if password:
+                    user.set_password(password)  # 🔐 Securely hash password
+                elif self.instance.pk:
+                    # keep old password
+                    user.password = CustomUser.objects.get(pk=self.instance.pk).password
+
+                if commit:
+                    user.save()
+                return user
+        
+
+
+
+class ForgotPasswordForm(forms.Form):
+    email = forms.EmailField(label='Registered Email')
+
+class OTPForm(forms.Form):
+    otp = forms.CharField(label='Enter OTP')
+
+class ResetPasswordForm(forms.Form):
+    new_password = forms.CharField(widget=forms.PasswordInput, label='New Password')
+    confirm_password = forms.CharField(widget=forms.PasswordInput, label='Confirm Password')

@@ -1,4 +1,6 @@
 {% extends 'departments/base.html' %}
+{% load widget_tweaks %}
+
 {% block title %}{% if form.instance.pk %}Edit{% else %}Add{% endif %} Employee{% endblock %}
 
 {% block content %}
@@ -14,14 +16,28 @@
                     {% csrf_token %}
 
                     {% for field in form %}
+                            {% if field.name != 'password' %}
+                                <div class="mb-3">
+                                    <label class="form-label">{{ field.label }}</label>
+                                    {{ field }}
+                                    {% if field.errors %}
+                                        <div class="text-danger small">{{ field.errors|join:", " }}</div>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+
                         <div class="mb-3">
-                            <label class="form-label">{{ field.label }}</label>
-                            {{ field }}
-                            {% if field.errors %}
-                                <div class="text-danger small">{{ field.errors|join:", " }}</div>
+                            <label class="form-label">Password</label>
+                            {{ form.password|add_class:"form-control" }}
+                            {% if form.password.errors %}
+                                <div class="text-danger small">{{ form.password.errors|join:", " }}</div>
+                            {% endif %}
+                            {% if form.instance.pk %}
+                                <div class="form-text">Leave blank to keep the current password.</div>
                             {% endif %}
                         </div>
-                    {% endfor %}
+
 
                     <div class="d-flex justify-content-end gap-3 mt-4">
                         <button type="submit" class="btn btn-success px-4 py-2 rounded-pill shadow-sm">Save</button>

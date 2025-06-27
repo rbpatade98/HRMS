@@ -25,5 +25,10 @@ urlpatterns = [
     path('employees/edit/<int:pk>/', views.employee_update, name='employee_edit'),
     path('employees/delete/<int:pk>/', views.employee_delete, name='employee_delete'),
 
+    #forgotpassword
+    path('forgot-password/', views.forgot_password_view, name='forgot_password'),
+    path('verify-otp/', views.verify_otp_view, name='verify_otp'),
+    path('reset-password/', views.reset_password_view, name='reset_password'),
+
 
 ]
