@@ -22,6 +22,10 @@ from django.db.models import Q, Count
 from django.utils import timezone
 
 
+from .forms import PerformanceReviewForm
+from .models import PerformanceReview
+
+
 
 
 
@@ -515,4 +519,86 @@ def task_detail(request, pk):
     return render(request, 'departments/task_detail.html', {
         'task': task,
         'task_assignments': task_assignments
+    })
+
+#performance
+
+@login_required
+def review_list(request):
+    user = request.user
+    if user.is_superuser:
+        reviews = PerformanceReview.objects.all()
+    else:
+        reviews = PerformanceReview.objects.filter(employee__reporting_manager=user)
+    
+    return render(request, 'departments/performance_review_list.html', {
+        'reviews': reviews
+    })
+
+
+@login_required
+def review_create(request):
+    if request.method == 'POST':
+        form = PerformanceReviewForm(request.POST, user=request.user)
+        if form.is_valid():
+            review = form.save(commit=False)
+            review.reviewed_by = request.user  # ✅ Fix: set the reviewer
+            review.save()
+            messages.success(request, "Review added successfully.")
+            return redirect('review_list')
+    else:
+        form = PerformanceReviewForm(user=request.user)
+
+    return render(request, 'departments/performance_review_form.html', {
+        'form': form,
+        'title': 'Add Performance Review'  # Optional
+    })
+
+@login_required
+def review_edit(request, pk):
+    review = get_object_or_404(PerformanceReview, pk=pk)
+
+    # Ensure only assigned manager or admin can edit
+    if not request.user.is_superuser and review.employee.reporting_manager != request.user:
+        messages.error(request, "You are not authorized to edit this review.")
+        return redirect('review_list')
+
+    if request.method == 'POST':
+        form = PerformanceReviewForm(request.POST, instance=review, user=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Review updated successfully.")
+            return redirect('review_list')
+    else:
+        form = PerformanceReviewForm(instance=review, user=request.user)
+
+    return render(request, 'departments/performance_review_form.html', {
+        'form': form
+    })
+
+
+@login_required
+def review_delete(request, pk):
+    review = get_object_or_404(PerformanceReview, pk=pk)
+
+    # Authorization check
+    if not request.user.is_superuser and review.employee.reporting_manager != request.user:
+        messages.error(request, "You are not authorized to delete this review.")
+        return redirect('review_list')
+
+    if request.method == 'POST':
+        review.delete()
+        messages.success(request, "Review deleted successfully.")
+        return redirect('review_list')
+
+    return render(request, 'departments/performance_review_confirm_delete.html', {
+        'review': review
+    })
+
+
+@login_required
+def review_detail(request, pk):
+    review = get_object_or_404(PerformanceReview, pk=pk)
+    return render(request, 'departments/performance_review_detail.html', {
+        'review': review
     })

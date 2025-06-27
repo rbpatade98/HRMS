@@ -1,0 +1,50 @@
+{% extends 'departments/base.html' %}
+{% block title %}Review Details{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="card shadow-sm rounded-4 p-4">
+        <h2 class="fw-bold mb-3 text-primary">Performance Review Details</h2>
+        <hr>
+
+        <div class="mb-3">
+            <strong>Employee:</strong>
+            <p>{{ review.employee.get_full_name }}</p>
+        </div>
+
+        <div class="mb-3">
+            <strong>Review Period:</strong>
+            <p>{{ review.review_period }}</p>
+        </div>
+
+        <div class="mb-3">
+            <strong>Rating:</strong>
+            <span class="badge 
+                {% if review.rating >= 4 %}bg-success
+                {% elif review.rating >= 2 %}bg-warning text-dark
+                {% else %}bg-danger
+                {% endif %}">
+                {{ review.rating }} / 5
+            </span>
+        </div>
+
+        <div class="mb-3">
+            <strong>Comments:</strong>
+            <p>{{ review.comments|default:"—" }}</p>
+        </div>
+
+        <div class="mb-3">
+            <strong>Reviewed By:</strong>
+            <p>{{ review.reviewed_by.get_full_name }}</p>
+        </div>
+
+        <div class="mb-3">
+            <strong>Reviewed On:</strong>
+            <td>{{ review.review_date|date:"Y-m-d" }}</td>
+
+        </div>
+
+        <a href="{% url 'review_list' %}" class="btn btn-outline-secondary">Back to Reviews</a>
+    </div>
+</div>
+{% endblock %}

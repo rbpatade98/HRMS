@@ -39,5 +39,13 @@ urlpatterns = [
     path('tasks/mark-completed/<int:pk>/', views.mark_task_completed, name='mark_task_completed'),
     path('tasks/detail/<int:pk>/', views.task_detail, name='task_detail'),
 
+    #performance
+    path('reviews/', views.review_list, name='review_list'),
+    path('reviews/add/', views.review_create, name='review_create'),
+    path('reviews/edit/<int:pk>/', views.review_edit, name='review_edit'),
+    path('reviews/delete/<int:pk>/', views.review_delete, name='review_delete'),
+    path('reviews/detail/<int:pk>/', views.review_detail, name='review_detail'),
+
+
 
 ]

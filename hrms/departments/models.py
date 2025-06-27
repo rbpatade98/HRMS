@@ -99,3 +99,32 @@ class TaskAssignment(models.Model):
     assigned_date = models.DateTimeField(auto_now_add=True)
     completed_at = models.DateTimeField(null=True, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
+
+# models.py
+from django.db import models
+from django.conf import settings
+
+REVIEW_PERIOD_CHOICES = [
+    ('Monthly', 'Monthly'),
+    ('Quarterly', 'Quarterly'),
+    ('Annual', 'Annual'),
+]
+
+RATING_CHOICES = [
+    (1, '1 - Poor'),
+    (2, '2 - Fair'),
+    (3, '3 - Good'),
+    (4, '4 - Very Good'),
+    (5, '5 - Excellent'),
+]
+
+class PerformanceReview(models.Model):
+    review_title = models.CharField(max_length=200)
+    employee = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='reviews_received')
+    reviewed_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='reviews_given')
+    review_period = models.CharField(max_length=50, choices=REVIEW_PERIOD_CHOICES)
+    rating = models.IntegerField()
+    comments = models.TextField()
+    review_date = models.DateField()
+
+

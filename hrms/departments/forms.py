@@ -128,3 +128,21 @@ class TaskAssignmentForm(forms.ModelForm):
 
 
 
+from .models import PerformanceReview
+
+class PerformanceReviewForm(forms.ModelForm):
+    class Meta:
+        model = PerformanceReview
+        fields = ['review_title', 'employee', 'review_period', 'rating', 'comments', 'review_date']  # ✅ Add here
+        widgets = {
+            'review_date': forms.DateInput(attrs={'type': 'date'}),
+        }
+          
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)  # ✅ Extract user from kwargs
+        super().__init__(*args, **kwargs)
+
+        if user:
+            # ✅ Filter employees to only those who report to the logged-in manager
+            self.fields['employee'].queryset = CustomUser.objects.filter(reporting_manager=user)
+

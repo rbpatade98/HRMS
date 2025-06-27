@@ -1,0 +1,67 @@
+{% extends 'departments/base.html' %}
+{% load widget_tweaks %}
+
+{% block title %}{% if form.instance.pk %}Edit{% else %}Add{% endif %} Review{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm rounded-4 p-4">
+                <h4 class="text-center mb-4 text-primary">
+                    {% if form.instance.pk %}Edit{% else %}Add{% endif %} Performance Review
+                </h4>
+
+                <form method="post">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label class="form-label">Employee</label>
+                        {{ form.employee|add_class:"form-select" }}
+                        {{ form.employee.errors }}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Review Title</label>
+                        {{ form.review_title|add_class:"form-control" }}
+                        {{ form.review_title.errors }}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Review Period</label>
+                        {{ form.review_period|add_class:"form-select" }}
+                        {{ form.review_period.errors }}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Rating (1-5)</label>
+                        {{ form.rating|add_class:"form-select" }}
+                        {{ form.rating.errors }}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Comments</label>
+                        {{ form.comments|add_class:"form-control" }}
+                        {{ form.comments.errors }}
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                    <label for="id_review_date" class="form-label fw-semibold">Review Date</label>
+                    {{ form.review_date|add_class:"form-control" }}
+                    {% if form.review_date.errors %}
+                        <div class="text-danger">{{ form.review_date.errors }}</div>
+                    {% endif %}
+                    </div>
+
+
+
+                    <div class="d-flex justify-content-end gap-3 mt-4">
+                        <button type="submit" class="btn btn-success px-4">Save</button>
+                        <a href="{% url 'review_list' %}" class="btn btn-outline-secondary px-4">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

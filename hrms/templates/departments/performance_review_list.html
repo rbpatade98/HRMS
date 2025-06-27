@@ -1,0 +1,66 @@
+{% extends 'departments/base.html' %}
+{% block title %}Performance Reviews{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="card shadow-sm rounded-4 p-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="fw-bold mb-0">Performance Reviews</h2>
+            <a href="{% url 'review_create' %}" class="btn btn-primary">
+                ➕ Add Review
+            </a>
+        </div>
+
+        <!-- 📋 Review Table -->
+        <div class="table-responsive">
+            <table class="table table-hover align-middle table-striped">
+                <thead class="table-primary">
+                    <tr>
+                        <th>ID</th>
+                        <th>Employee</th>
+                        <th>Review Title</th>
+                        <th>Period</th>
+                        <th>Rating</th>
+                        <th>Review Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for review in reviews %}
+                    <tr>
+                        <td>{{ review.id }}</td>
+                        <td>{{ review.employee.get_full_name }}</td>
+                        <td>{{ review.review_title }}</td>
+                        <td>{{ review.review_period }}</td>
+                        
+                        <td>
+                            <span class="badge 
+                                {% if review.rating >= 4 %}bg-success
+                                {% elif review.rating == 3 %}bg-warning
+                                {% else %}bg-danger
+                                {% endif %}">
+                                {{ review.rating }} / 5
+                            </span>
+                        </td>
+
+                        <td>{{ review.review_date|date:"Y-m-d" }}</td>
+
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="{% url 'review_detail' review.id %}" class="btn btn-info">👁 View</a>
+                                <a href="{% url 'review_edit' review.id %}" class="btn btn-warning">✏ Edit</a>
+                                <a href="{% url 'review_delete' review.id %}" class="btn btn-danger">🗑 Delete</a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">No reviews found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

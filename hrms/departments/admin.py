@@ -5,6 +5,7 @@ from django.contrib.auth.admin import UserAdmin
 from .models import CustomUser
 from .models import Task 
 from .models import TaskAssignment 
+from .models import PerformanceReview
 
 @admin.register(Department)
 class DepartmentAdmin(admin.ModelAdmin):
@@ -56,3 +57,17 @@ class TaskAssignmentAdmin(admin.ModelAdmin):
     search_fields = ('task__task_title', 'employee__username', 'status')
     list_filter = ('status', 'assigned_date')
     ordering = ('-assigned_date',)
+
+
+
+
+@admin.register(PerformanceReview)
+class PerformanceReviewAdmin(admin.ModelAdmin):
+    list_display = ('id', 'review_title', 'employee', 'review_period', 'rating', 'get_reviewer', 'review_date')
+    list_filter = ('review_period', 'rating')
+    search_fields = ('review_title', 'employee__username', 'reviewed_by__username')
+
+    def get_reviewer(self, obj):
+        return obj.reviewed_by.get_full_name() if obj.reviewed_by else '-'
+    get_reviewer.short_description = 'Reviewed By'
+
