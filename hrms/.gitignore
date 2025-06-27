@@ -1,12 +1,53 @@
+# === Python cache and build artifacts ===
 __pycache__/
-*.pyc
+*.py[cod]
 *.pyo
 *.pyd
+*.egg
+*.egg-info/
+dist/
+build/
 *.log
-*.sqlite3
-*.db
+
+# === Django-specific ===
 db.sqlite3
-.env
-venv/
-static/
+*.sqlite3
+*.pyc
+*.log
+local_settings.py
 media/
+staticfiles/
+
+# === Virtual Environment ===
+venv/
+ENV/
+env/
+.venv/
+Scripts/
+Include/
+Lib/
+
+# === Environment Variables ===
+.env
+*.env
+
+# === VS Code ===
+.vscode/
+
+# === PyCharm ===
+.idea/
+
+# === Operating System Files ===
+.DS_Store
+Thumbs.db
+
+# === Testing / Coverage ===
+htmlcov/
+.coverage
+.tox/
+.nox/
+pytest_cache/
+
+# === Migrations (optional: track only __init__.py) ===
+*/migrations/*.py
+!*/migrations/__init__.py
