@@ -1,0 +1,94 @@
+{% extends 'departments/base.html' %}
+{% load static %}
+{% block title %}Leave Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Leave Dashboard</h2>
+
+    <!-- Leave Balances -->
+    <div class="row mb-4">
+        {% for quota in quotas %}
+        <div class="col-md-3">
+            <div class="card text-white bg-info mb-3">
+                <div class="card-header text-center">{{ quota.leave_type }}</div>
+                <div class="card-body text-center">
+                    <p><strong>Total:</strong> {{ quota.total_quota }}</p>
+                    <p><strong>Used:</strong> {{ quota.used_quota }}</p>
+                    <p><strong>Remaining:</strong> {{ quota.remain_quota }}</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Apply Leave Button -->
+    <div class="text-right mb-3">
+        <a href="{% url 'apply_leave' %}" class="btn btn-primary">Apply Leave</a>
+        <a href="{% url 'leave_approval_list' %}" class="btn btn-outline-primary">
+            <i class="bi bi-check-circle-fill"></i> Approve Leave
+        </a>
+        <a href="{% url 'leave_quota_list' %}" class="btn btn-outline-primary">
+            <i class="bi bi-clipboard-data-fill"></i> Manage Leave Quota
+        </a>
+    </div>
+
+    
+
+    <!-- Leave History Table -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Leave History</h5>
+        </div>
+        <div class="card-body table-responsive">
+            {% if leaves %}
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Start</th>
+                        <th>End</th>
+                        <th>Total Days</th>
+                        <th>Status</th>
+                        <th>Reason</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for leave in leaves %}
+                    <tr>
+                        <td>{{ leave.leave_type }}</td>
+                        <td>{{ leave.start_date }}</td>
+                        <td>{{ leave.end_date }}</td>
+                        <td>{{ leave.total_days }}</td>
+                        <td>
+                            {% if leave.status == "approved" %}
+                                <span class="badge bg-success text-uppercase">{{ leave.status }}</span>
+                            {% elif leave.status == "rejected" %}
+                                <span class="badge bg-danger text-uppercase">{{ leave.status }}</span>
+                            {% elif leave.status == "pending" %}
+                                <span class="badge bg-warning text-dark text-uppercase">{{ leave.status }}</span>
+                            {% else %}
+                                <span class="badge bg-secondary">{{ leave.status }}</span>
+                            {% endif %}
+                        </td>
+
+                        <td>{{ leave.reason }}</td>
+                        <td>
+                            {% if leave.status == 'Pending' %}
+                            <a href="{% url 'edit_leave' leave.pk %}" class="btn btn-sm btn-outline-primary">Edit</a>
+                            {% else %}
+                            <button class="btn btn-sm btn-secondary" disabled>Edit</button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p>No leave applications found.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.conf import settings
+from datetime import date
+
 
 class Department(models.Model):
     dept_id = models.AutoField(primary_key=True)
@@ -30,7 +32,13 @@ class CustomUser(AbstractUser):
     mobile = models.CharField(max_length=100)
     dept = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True, blank=True)
     role = models.ForeignKey(Role, on_delete=models.SET_NULL, null=True, blank=True)
-    reporting_manager = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True)
+    reporting_manager = models.ForeignKey(
+        'self',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='subordinates'
+    )
     date_of_joining = models.DateField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -128,3 +136,59 @@ class PerformanceReview(models.Model):
     review_date = models.DateField()
 
 
+# LeaveRequest Model
+class LeaveRequest(models.Model):
+    LEAVE_TYPE_CHOICES = [
+        ('PL', 'Privilege Leave'),
+        ('CL', 'Casual Leave'),
+        ('SL', 'Sick Leave'),
+        ('LWP', 'Leave Without Pay'),
+    ]
+
+    STATUS_CHOICES = [
+        ('Pending', 'Pending'),
+        ('Approved', 'Approved'),
+        ('Rejected', 'Rejected'),
+    ]
+
+    employee = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='leaves')
+    leave_type = models.CharField(max_length=4, choices=LEAVE_TYPE_CHOICES)
+    reason = models.CharField(max_length=200)
+    start_date = models.DateField()
+    end_date = models.DateField()
+    total_days = models.IntegerField()
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Pending')
+    approved_by = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True, related_name='approved_leaves')
+    applied_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        # Auto-calculate total_days
+        if self.start_date and self.end_date:
+            self.total_days = (self.end_date - self.start_date).days + 1
+        super().save(*args, **kwargs)
+
+
+
+
+# LeaveQuota Model
+class LeaveQuota(models.Model):
+    LEAVE_TYPE_CHOICES = [
+        ('PL', 'Privilege Leave'),
+        ('CL', 'Casual Leave'),
+        ('SL', 'Sick Leave'),
+        ('LWP', 'Leave Without Pay'),
+    ]
+    leave_quota_id = models.AutoField(primary_key=True)
+    employee = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='leave_quotas')
+    leave_type = models.CharField(max_length=4, choices=LEAVE_TYPE_CHOICES)
+    total_quota = models.PositiveIntegerField(default=0)
+    used_quota = models.PositiveIntegerField(default=0)
+    remain_quota = models.PositiveIntegerField(default=0)
+
+    def save(self, *args, **kwargs):
+        self.remain_quota = self.total_quota - self.used_quota
+        super().save(*args, **kwargs)
+
+    class Meta:
+        unique_together = ('employee', 'leave_type')

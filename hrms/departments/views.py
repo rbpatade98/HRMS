@@ -29,6 +29,7 @@ from .models import PerformanceReview
 
 
 
+
 # ✅ Home Page (Public)
 def home(request):
     return render(request, 'departments/home.html')
@@ -602,3 +603,116 @@ def review_detail(request, pk):
     return render(request, 'departments/performance_review_detail.html', {
         'review': review
     })
+
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import LeaveRequest, LeaveQuota
+from .forms import LeaveRequestForm, LeaveQuotaForm
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from datetime import date
+
+@login_required
+def leave_dashboard(request):
+    user = request.user
+    leaves = LeaveRequest.objects.filter(employee=user).order_by('-applied_at')
+    quotas = LeaveQuota.objects.filter(employee=user)
+    return render(request, 'departments/leave_dashboard.html', {
+        'leaves': leaves,
+        'quotas': quotas,
+    })
+
+@login_required
+def apply_leave(request):
+    if request.method == 'POST':
+        form = LeaveRequestForm(request.POST)
+        if form.is_valid():
+            leave = form.save(commit=False)
+            leave.employee = request.user
+            leave.save()
+            messages.success(request, "Leave applied successfully.")
+            return redirect('leave_dashboard')
+    else:
+        form = LeaveRequestForm()
+    return render(request, 'departments/apply_leave.html', {'form': form})
+
+@login_required
+def edit_leave(request, pk):
+    leave = get_object_or_404(LeaveRequest, pk=pk, employee=request.user)
+    if leave.status != 'Pending':
+        messages.warning(request, "You cannot edit leave after it is approved/rejected.")
+        return redirect('leave_dashboard')
+
+    if request.method == 'POST':
+        form = LeaveRequestForm(request.POST, instance=leave)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Leave updated successfully.")
+            return redirect('leave_dashboard')
+    else:
+        form = LeaveRequestForm(instance=leave)
+    return render(request, 'departments/edit_leave.html', {'form': form})
+
+@login_required
+def leave_approval_list(request):
+    reportees = request.user.subordinates.all()  # assuming you defined this related_name
+    leaves = LeaveRequest.objects.filter(employee__in=reportees).order_by('-applied_at')
+    return render(request, 'departments/leave_approval_list.html', {'leaves': leaves})
+
+@login_required
+def approve_leave(request, pk):
+    leave = get_object_or_404(LeaveRequest, pk=pk)
+    if request.method == 'POST':
+        status = request.POST.get('status')
+        if status in ['Approved', 'Rejected']:
+            leave.status = status
+            leave.approved_by = request.user
+            leave.save()
+            messages.success(request, f"Leave {status.lower()} successfully.")
+        return redirect('leave_approval_list')
+    return render(request, 'departments/approve_leave.html', {'leave': leave})
+
+@login_required
+def leave_quota_list(request):
+    if not request.user.is_superuser and not request.user.is_hr:
+        return redirect('leave_dashboard')
+
+    quotas = LeaveQuota.objects.select_related('employee').order_by('employee__first_name')
+    paginator = Paginator(quotas, 10)
+    page = request.GET.get('page')
+    quotas = paginator.get_page(page)
+    return render(request, 'departments/leave_quota_list.html', {'quotas': quotas})
+
+@login_required
+def add_leave_quota(request):
+    if request.method == 'POST':
+        form = LeaveQuotaForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Leave quota added.")
+            return redirect('leave_quota_list')
+    else:
+        form = LeaveQuotaForm()
+    return render(request, 'departments/add_leave_quota.html', {'form': form})
+
+@login_required
+def edit_leave_quota(request, pk):
+    quota = get_object_or_404(LeaveQuota, pk=pk)
+    if request.method == 'POST':
+        form = LeaveQuotaForm(request.POST, instance=quota)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Leave quota updated.")
+            return redirect('leave_quota_list')
+    else:
+        form = LeaveQuotaForm(instance=quota)
+    return render(request, 'departments/edit_leave_quota.html', {'form': form})
+
+@login_required
+def delete_leave_quota(request, pk):
+    quota = get_object_or_404(LeaveQuota, pk=pk)
+    if request.method == 'POST':
+        quota.delete()
+        messages.success(request, "Leave quota deleted.")
+        return redirect('leave_quota_list')
+    return render(request, 'departments/leave_confirm_delete.html', {'quota': quota})
+

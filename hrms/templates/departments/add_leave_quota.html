@@ -1,0 +1,52 @@
+{% extends 'departments/base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+{% block title %}Add Leave Quota{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Add Leave Quota</h2>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <div class="form-group mb-3">
+                            <label for="employee">Employee</label>
+                            {{ form.employee|add_class:"form-control" }}
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="leave_type">Leave Type</label>
+                            {{ form.leave_type|add_class:"form-control" }}
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="total_quota">Total Quota</label>
+                            {{ form.total_quota|add_class:"form-control" }}
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="used_quota">Used Quota</label>
+                            {{ form.used_quota|add_class:"form-control" }}
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label for="remain_quota">Remaining Quota</label>
+                            {{ form.remain_quota|add_class:"form-control" }}
+                        </div>
+
+                        <div class="text-end">
+                            <a href="{% url 'leave_quota_list' %}" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Add Quota</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

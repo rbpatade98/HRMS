@@ -146,3 +146,25 @@ class PerformanceReviewForm(forms.ModelForm):
             # ✅ Filter employees to only those who report to the logged-in manager
             self.fields['employee'].queryset = CustomUser.objects.filter(reporting_manager=user)
 
+
+from django import forms
+from .models import LeaveRequest, LeaveQuota
+
+class LeaveRequestForm(forms.ModelForm):
+    class Meta:
+        model = LeaveRequest
+        fields = ['leave_type', 'start_date', 'end_date', 'reason']
+        widgets = {
+            'start_date': forms.DateInput(attrs={'type': 'date'}),
+            'end_date': forms.DateInput(attrs={'type': 'date'}),
+            'reason': forms.Textarea(attrs={'rows': 3}),
+        }
+
+class LeaveQuotaForm(forms.ModelForm):
+    class Meta:
+        model = LeaveQuota
+        fields = ['employee', 'leave_type', 'total_quota', 'used_quota']
+
+
+
+

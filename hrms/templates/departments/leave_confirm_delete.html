@@ -1,0 +1,28 @@
+{% extends 'departments/base.html' %}
+{% load static %}
+{% block title %}Confirm Delete{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-body text-center">
+                    <h4 class="mb-4 text-danger">Are you sure you want to delete this leave quota?</h4>
+
+                    <p><strong>Employee:</strong> {{ quota.employee.first_name }} {{ quota.employee.last_name }}</p>
+                    <p><strong>Leave Type:</strong> {{ quota.leave_type }}</p>
+                    <p><strong>Total Quota:</strong> {{ quota.total_quota }}</p>
+                    <p><strong>Used Quota:</strong> {{ quota.used_quota }}</p>
+
+                    <form method="post" class="mt-4">
+                        {% csrf_token %}
+                        <a href="{% url 'leave_quota_list' %}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-danger">Yes, Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

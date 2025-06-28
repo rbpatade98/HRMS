@@ -46,6 +46,27 @@ urlpatterns = [
     path('reviews/delete/<int:pk>/', views.review_delete, name='review_delete'),
     path('reviews/detail/<int:pk>/', views.review_detail, name='review_detail'),
 
+     # Leave Dashboard
+    path('leave/dashboard/', views.leave_dashboard, name='leave_dashboard'),
 
+    # Apply and Edit Leave
+    path('leave/apply/', views.apply_leave, name='apply_leave'),
+    path('leave/edit/<int:pk>/', views.edit_leave, name='edit_leave'),
+
+    # Leave Approval by Manager/Admin
+    path('leave/approval/', views.leave_approval_list, name='leave_approval_list'),
+    path('leave/approve/<int:pk>/', views.approve_leave, name='approve_leave'),
+
+    # Leave Quota Management
+    path('leave/quota/', views.leave_quota_list, name='leave_quota_list'),
+    path('leave/quota/add/', views.add_leave_quota, name='add_leave_quota'),
+    path('leave/quota/edit/<int:pk>/', views.edit_leave_quota, name='edit_leave_quota'),
+    path('leave/quota/delete/<int:pk>/', views.delete_leave_quota, name='delete_leave_quota'),
 
 ]
+
+    
+
+
+
+

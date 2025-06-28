@@ -1,0 +1,72 @@
+{% extends 'departments/base.html' %}
+{% load static %}
+{% block title %}Leave Quota Management{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Leave Quota Management</h2>
+
+    <!-- Add Quota Button -->
+    <div class="text-right mb-3">
+        <a href="{% url 'add_leave_quota' %}" class="btn btn-primary">+ Add Leave Quota</a>
+    </div>
+
+    <!-- Quota Table -->
+    <div class="card shadow">
+        <div class="card-body table-responsive">
+            {% if quotas %}
+            <table class="table table-bordered table-hover">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Employee</th>
+                        <th>Leave Type</th>
+                        <th>Total</th>
+                        <th>Used</th>
+                        <th>Remaining</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for quota in quotas %}
+                    <tr>
+                        <td>{{ quota.employee.first_name }} {{ quota.employee.last_name }}</td>
+                        <td>{{ quota.leave_type }}</td>
+                        <td>{{ quota.total_quota }}</td>
+                        <td>{{ quota.used_quota }}</td>
+                        <td>{{ quota.remain_quota }}</td>
+                        <td>
+                            <a href="{% url 'edit_leave_quota' quota.pk %}" class="btn btn-sm btn-outline-info">Edit</a>
+                            <a href="{% url 'delete_leave_quota' quota.pk %}" class="btn btn-sm btn-outline-danger">Delete</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <!-- Pagination -->
+            <nav>
+                <ul class="pagination justify-content-center">
+                    {% if quotas.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ quotas.previous_page_number }}">Previous</a>
+                    </li>
+                    {% endif %}
+
+                    <li class="page-item active">
+                        <span class="page-link">{{ quotas.number }}</span>
+                    </li>
+
+                    {% if quotas.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ quotas.next_page_number }}">Next</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% else %}
+            <p>No leave quotas added yet.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

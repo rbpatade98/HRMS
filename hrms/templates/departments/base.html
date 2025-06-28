@@ -51,8 +51,20 @@
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'review_list' %}">Performance Reviews</a>
+                        <a class="nav-link" href="{% url 'review_list' %}">Performance </a>
                     </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'leave_dashboard' %}active{% endif %}" href="{% url 'leave_dashboard' %}"> Leave</a>
+                    </li>
+                    <!-- <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'leave_approval_list' %}active{% endif %}" href="{% url 'leave_approval_list' %}">Approve Leaves</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'leave_quota_list' %}active{% endif %}" href="{% url 'leave_quota_list' %}">Leave Quota</a>
+                    </li> -->
+
+                    
 
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'logout' %}">Logout</a>

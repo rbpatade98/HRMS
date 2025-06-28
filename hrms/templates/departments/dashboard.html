@@ -68,8 +68,11 @@
                 Manage Tasks
             </a>
             
-            
-            <a href="{% url 'review_list' %}" class="btn btn-outline-primary">Manage Reviews</a>
+            <a href="{% url 'review_list' %}" class="btn btn-outline-primary">Performance Reviews</a>
+
+            <a href="{% url 'leave_dashboard' %}" class="btn btn-outline-info">My Leave</a>
+            <a href="{% url 'leave_approval_list' %}" class="btn btn-outline-warning">Approve Leaves</a>
+            <a href="{% url 'leave_quota_list' %}" class="btn btn-outline-success">Manage Leave Quota</a>
 
         </div>
     </div>

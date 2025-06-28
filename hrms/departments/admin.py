@@ -6,6 +6,8 @@ from .models import CustomUser
 from .models import Task 
 from .models import TaskAssignment 
 from .models import PerformanceReview
+from .models import LeaveRequest
+from .models import LeaveQuota
 
 @admin.register(Department)
 class DepartmentAdmin(admin.ModelAdmin):
@@ -71,3 +73,20 @@ class PerformanceReviewAdmin(admin.ModelAdmin):
         return obj.reviewed_by.get_full_name() if obj.reviewed_by else '-'
     get_reviewer.short_description = 'Reviewed By'
 
+
+
+from django.contrib import admin
+from .models import LeaveRequest, LeaveQuota
+
+@admin.register(LeaveRequest)
+class LeaveRequestAdmin(admin.ModelAdmin):
+    list_display = ['employee', 'leave_type', 'start_date', 'end_date', 'total_days', 'status', 'approved_by', 'applied_at']
+    list_filter = ['leave_type', 'status', 'start_date']
+    search_fields = ['employee__first_name', 'employee__last_name', 'leave_type']
+    readonly_fields = ['applied_at', 'updated_at']
+
+@admin.register(LeaveQuota)
+class LeaveQuotaAdmin(admin.ModelAdmin):
+    list_display = ['employee', 'leave_type', 'total_quota', 'used_quota', 'remain_quota']
+    list_filter = ['leave_type']
+    search_fields = ['employee__first_name', 'employee__last_name']

@@ -1,0 +1,42 @@
+{% extends 'departments/base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+{% block title %}Apply Leave{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Apply for Leave</h2>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="form-group mb-3">
+                            <label for="leave_type">Leave Type</label>
+                            {{ form.leave_type|add_class:"form-control" }}
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="start_date">Start Date</label>
+                            {{ form.start_date|add_class:"form-control" }}
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="end_date">End Date</label>
+                            {{ form.end_date|add_class:"form-control" }}
+                        </div>
+                        <div class="form-group mb-4">
+                            <label for="reason">Reason</label>
+                            {{ form.reason|add_class:"form-control"|attr:"placeholder:Reason for leave" }}
+                        </div>
+                        <div class="text-right">
+                            <a href="{% url 'leave_dashboard' %}" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Submit Leave</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

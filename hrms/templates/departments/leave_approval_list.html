@@ -1,0 +1,65 @@
+{% extends 'departments/base.html' %}
+{% load static %}
+{% block title %}Leave Approval List{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Leave Requests - Approval Panel</h2>
+
+    <div class="card shadow">
+        <div class="card-body table-responsive">
+            {% if leaves %}
+            <table class="table table-bordered table-hover">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Employee</th>
+                        <th>Leave Type</th>
+                        <th>Start</th>
+                        <th>End</th>
+                        <th>Total Days</th>
+                        <th>Status</th>
+                        <th>Reason</th>
+                        <th>Applied On</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for leave in leaves %}
+                    <tr>
+                        <td>{{ leave.employee.first_name }} {{ leave.employee.last_name }}</td>
+                        <td>{{ leave.leave_type }}</td>
+                        <td>{{ leave.start_date }}</td>
+                        <td>{{ leave.end_date }}</td>
+                        <td>{{ leave.total_days }}</td>
+                        <td>
+                            {% if leave.status == "approved" %}
+                                <span class="badge bg-success text-uppercase">Approved</span>
+                            {% elif leave.status == "rejected" %}
+                                <span class="badge bg-danger text-uppercase">Rejected</span>
+                            {% elif leave.status == "pending" %}
+                                <span class="badge bg-warning text-dark text-uppercase">Pending</span>
+                            {% else %}
+                                <span class="badge bg-secondary">{{ leave.status }}</span>
+                            {% endif %}
+                        </td>
+
+                        <td>{{ leave.reason }}</td>
+                        <td>{{ leave.applied_at|date:"Y-m-d H:i" }}</td>
+                        <td>
+                            {% if leave.status == 'Pending' %}
+                            <a href="{% url 'approve_leave' leave.pk %}" class="btn btn-sm btn-outline-primary">Review</a>
+                            {% else %}
+                            <button class="btn btn-sm btn-secondary" disabled>Reviewed</button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p>No pending leave requests.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
